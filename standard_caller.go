@@ -18,11 +18,11 @@ var StandardCaller Caller = internalStandardCaller{}
 
 type internalStandardCaller struct{}
 
-func (caller internalStandardCaller) CallTELNET(ctx Context, w Writer, r Reader) {
-	standardCallerCallTELNET(os.Stdin, os.Stdout, os.Stderr, ctx, w, r)
+func (caller internalStandardCaller) CallTELNET(w Writer, r Reader) {
+	standardCallerCallTELNET(os.Stdin, os.Stdout, os.Stderr, w, r)
 }
 
-func standardCallerCallTELNET(stdin io.ReadCloser, stdout io.WriteCloser, stderr io.WriteCloser, ctx Context, w Writer, r Reader) {
+func standardCallerCallTELNET(stdin io.ReadCloser, stdout io.WriteCloser, stderr io.WriteCloser, w Writer, r Reader) {
 	go func(writer io.Writer, reader io.Reader) {
 		var buffer [1]byte // Seems like the length of the buffer needs to be small, otherwise will have to wait for buffer to fill up.
 		p := buffer[:]

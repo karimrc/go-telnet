@@ -1,6 +1,5 @@
 package telnet
 
-
 // A Caller represents the client end of a TELNET (or TELNETS) connection.
 //
 // Writing data to the Writer passed as an argument to the CallTELNET method
@@ -14,5 +13,5 @@ package telnet
 // The Reader's Read method "un-escapes" TELNET (and TELNETS) data, and filters
 // out TELNET (and TELNETS) command sequences.
 type Caller interface {
-	CallTELNET(Context, Writer, Reader)
+	CallTELNET(Writer, Reader)
 }
