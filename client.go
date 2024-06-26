@@ -63,12 +63,10 @@ func (client *Client) Call(conn *Conn) error {
 		caller = StandardCaller
 	}
 
-	var ctx Context = NewContext().InjectLogger(logger)
-
 	var w Writer = conn
 	var r Reader = conn
 
-	caller.CallTELNET(ctx, w, r)
+	caller.CallTELNET(w, r)
 	conn.Close()
 
 	return nil

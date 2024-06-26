@@ -472,14 +472,12 @@ func TestStandardCallerFromClientToServer(t *testing.T) {
 		stdout := oi.WriteNopCloser(&stdoutBuffer)
 		stderr := oi.WriteNopCloser(&stderrBuffer)
 
-		var ctx Context = nil
-
 		var dataWriterBuffer bytes.Buffer
 		dataWriter := newDataWriter(&dataWriterBuffer)
 
 		dataReader := newDataReader(bytes.NewReader([]byte{})) // <----------------- The important difference between the 2 loops.
 
-		standardCallerCallTELNET(stdin, stdout, stderr, ctx, dataWriter, dataReader)
+		standardCallerCallTELNET(stdin, stdout, stderr, dataWriter, dataReader)
 
 		if expected, actual := string(test.Expected), dataWriterBuffer.String(); expected != actual {
 			t.Errorf("For test #%d, expected %q, but actually got %q; for %q.", testNumber, expected, actual, test.Bytes)
@@ -781,14 +779,12 @@ func TestStandardCallerFromServerToClient(t *testing.T) {
 		stdout := oi.WriteNopCloser(&stdoutBuffer)
 		stderr := oi.WriteNopCloser(&stderrBuffer)
 
-		var ctx Context = nil
-
 		var dataWriterBuffer bytes.Buffer
 		dataWriter := newDataWriter(&dataWriterBuffer)
 
 		dataReader := newDataReader(bytes.NewReader(test.Bytes)) // <----------------- The important difference between the 2 loops.
 
-		standardCallerCallTELNET(stdin, stdout, stderr, ctx, dataWriter, dataReader)
+		standardCallerCallTELNET(stdin, stdout, stderr, dataWriter, dataReader)
 
 		if expected, actual := "", dataWriterBuffer.String(); expected != actual {
 			t.Errorf("For test #%d, expected %q, but actually got %q; for %q.", testNumber, expected, actual, test.Bytes)
