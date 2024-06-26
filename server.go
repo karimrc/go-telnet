@@ -15,7 +15,7 @@ import (
 //	package main
 //	
 //	import (
-//		"github.com/reiver/go-telnet"
+//		"github.com/karimrc/go-telnet"
 //	)
 //	
 //	func main() {
@@ -50,7 +50,7 @@ func Serve(listener net.Listener, handler Handler) error {
 //	package main
 //	
 //	import (
-//		"github.com/reiver/go-telnet"
+//		"github.com/karimrc/go-telnet"
 //	)
 //	
 //	func main() {
@@ -85,7 +85,7 @@ type Server struct {
 //	package main
 //	
 //	import (
-//		"github.com/reiver/go-telnet"
+//		"github.com/karimrc/go-telnet"
 //	)
 //	
 //	func main() {

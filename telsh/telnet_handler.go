@@ -1,16 +1,14 @@
 package telsh
 
-
 import (
-	"github.com/reiver/go-oi"
-	"github.com/reiver/go-telnet"
-
 	"bytes"
 	"io"
 	"strings"
 	"sync"
-)
 
+	"github.com/karimrc/go-telnet"
+	"github.com/reiver/go-oi"
+)
 
 const (
 	defaultExitCommandName = "exit"
@@ -19,10 +17,9 @@ const (
 	defaultExitMessage     = "\r\nGoodbye!\r\n"
 )
 
-
 type ShellHandler struct {
-	muxtex sync.RWMutex
-	producers map[string]Producer
+	muxtex       sync.RWMutex
+	producers    map[string]Producer
 	elseProducer Producer
 
 	ExitCommandName string
@@ -31,12 +28,11 @@ type ShellHandler struct {
 	ExitMessage     string
 }
 
-
 func NewShellHandler() *ShellHandler {
 	producers := map[string]Producer{}
 
 	telnetHandler := ShellHandler{
-		producers:producers,
+		producers: producers,
 
 		Prompt:          defaultPrompt,
 		ExitCommandName: defaultExitCommandName,
@@ -47,9 +43,7 @@ func NewShellHandler() *ShellHandler {
 	return &telnetHandler
 }
 
-
 func (telnetHandler *ShellHandler) Register(name string, producer Producer) error {
-
 	telnetHandler.muxtex.Lock()
 	telnetHandler.producers[name] = producer
 	telnetHandler.muxtex.Unlock()
@@ -65,9 +59,7 @@ func (telnetHandler *ShellHandler) MustRegister(name string, producer Producer) 
 	return telnetHandler
 }
 
-
 func (telnetHandler *ShellHandler) RegisterHandlerFunc(name string, handlerFunc HandlerFunc) error {
-
 	produce := func(ctx telnet.Context, name string, args ...string) Handler {
 		return PromoteHandlerFunc(handlerFunc, args...)
 	}
@@ -85,9 +77,7 @@ func (telnetHandler *ShellHandler) MustRegisterHandlerFunc(name string, handlerF
 	return telnetHandler
 }
 
-
 func (telnetHandler *ShellHandler) RegisterElse(producer Producer) error {
-
 	telnetHandler.muxtex.Lock()
 	telnetHandler.elseProducer = producer
 	telnetHandler.muxtex.Unlock()
@@ -97,37 +87,32 @@ func (telnetHandler *ShellHandler) RegisterElse(producer Producer) error {
 
 func (telnetHandler *ShellHandler) MustRegisterElse(producer Producer) *ShellHandler {
 	if err := telnetHandler.RegisterElse(producer); nil != err {
-			panic(err)
+		panic(err)
 	}
 
 	return telnetHandler
 }
 
-
 func (telnetHandler *ShellHandler) ServeTELNET(ctx telnet.Context, writer telnet.Writer, reader telnet.Reader) {
-
 	logger := ctx.Logger()
 	if nil == logger {
 		logger = internalDiscardLogger{}
 	}
 
-
 	colonSpaceCommandNotFoundEL := []byte(": command not found\r\n")
 
-
-	var prompt          bytes.Buffer
+	var prompt bytes.Buffer
 	var exitCommandName string
-	var welcomeMessage  string
-	var exitMessage     string
+	var welcomeMessage string
+	var exitMessage string
 
 	prompt.WriteString(telnetHandler.Prompt)
 
-	promptBytes          := prompt.Bytes()
+	promptBytes := prompt.Bytes()
 
 	exitCommandName = telnetHandler.ExitCommandName
-	welcomeMessage  = telnetHandler.WelcomeMessage
-	exitMessage     = telnetHandler.ExitMessage
-
+	welcomeMessage = telnetHandler.WelcomeMessage
+	exitMessage = telnetHandler.ExitMessage
 
 	if _, err := oi.LongWriteString(writer, welcomeMessage); nil != err {
 		logger.Errorf("Problem long writing welcome message: %v", err)
@@ -139,7 +124,6 @@ func (telnetHandler *ShellHandler) ServeTELNET(ctx telnet.Context, writer telnet
 		return
 	}
 	logger.Debugf("Wrote prompt: %q.", promptBytes)
-
 
 	var buffer [1]byte // Seems like the length of the buffer needs to be small, otherwise will have to wait for buffer to fill up.
 	p := buffer[:]
@@ -155,10 +139,8 @@ func (telnetHandler *ShellHandler) ServeTELNET(ctx telnet.Context, writer telnet
 			break
 		}
 
-
 		line.WriteByte(p[0])
-		//logger.Tracef("Received: %q (%d).", p[0], p[0])
-
+		// logger.Tracef("Received: %q (%d).", p[0], p[0])
 
 		if '\n' == p[0] {
 			lineString := line.String()
@@ -171,8 +153,7 @@ func (telnetHandler *ShellHandler) ServeTELNET(ctx telnet.Context, writer telnet
 				continue
 			}
 
-
-//@TODO: support piping.
+			//@TODO: support piping.
 			fields := strings.Fields(lineString)
 			logger.Debugf("Have %d tokens.", len(fields))
 			logger.Tracef("Tokens: %v", fields)
@@ -184,14 +165,12 @@ func (telnetHandler *ShellHandler) ServeTELNET(ctx telnet.Context, writer telnet
 				continue
 			}
 
-
 			field0 := fields[0]
 
 			if exitCommandName == field0 {
 				oi.LongWriteString(writer, exitMessage)
 				return
 			}
-
 
 			var producer Producer
 
@@ -207,7 +186,7 @@ func (telnetHandler *ShellHandler) ServeTELNET(ctx telnet.Context, writer telnet
 			}
 
 			if nil == producer {
-//@TODO: Don't convert that to []byte! think this creates "garbage" (for collector).
+				//@TODO: Don't convert that to []byte! think this creates "garbage" (for collector).
 				oi.LongWrite(writer, []byte(field0))
 				oi.LongWrite(writer, colonSpaceCommandNotFoundEL)
 				line.Reset()
@@ -220,35 +199,33 @@ func (telnetHandler *ShellHandler) ServeTELNET(ctx telnet.Context, writer telnet
 			handler := producer.Produce(ctx, field0, fields[1:]...)
 			if nil == handler {
 				oi.LongWrite(writer, []byte(field0))
-//@TODO: Need to use a different error message.
+				//@TODO: Need to use a different error message.
 				oi.LongWrite(writer, colonSpaceCommandNotFoundEL)
 				line.Reset()
 				oi.LongWrite(writer, promptBytes)
 				continue
 			}
 
-//@TODO: Wire up the stdin, stdout, stderr of the handler.
+			//@TODO: Wire up the stdin, stdout, stderr of the handler.
 
 			if stdoutPipe, err := handler.StdoutPipe(); nil != err {
-//@TODO:                              
+				//@TODO:
 			} else if nil == stdoutPipe {
-//@TODO:                              
+				//@TODO:
 			} else {
 				connect(ctx, writer, stdoutPipe)
 			}
 
-
 			if stderrPipe, err := handler.StderrPipe(); nil != err {
-//@TODO:                              
+				//@TODO:
 			} else if nil == stderrPipe {
-//@TODO:                              
+				//@TODO:
 			} else {
 				connect(ctx, writer, stderrPipe)
 			}
 
-
 			if err := handler.Run(); nil != err {
-//@TODO:                                    
+				//@TODO:
 			}
 			line.Reset()
 			if _, err := oi.LongWrite(writer, promptBytes); nil != err {
@@ -256,26 +233,20 @@ func (telnetHandler *ShellHandler) ServeTELNET(ctx telnet.Context, writer telnet
 			}
 		}
 
-
-//@TODO: Are there any special errors we should be dealing with separately?
+		//@TODO: Are there any special errors we should be dealing with separately?
 		if nil != err {
 			break
 		}
 	}
 
-
 	oi.LongWriteString(writer, exitMessage)
 	return
 }
 
-
-
 func connect(ctx telnet.Context, writer io.Writer, reader io.Reader) {
-
 	logger := ctx.Logger()
 
-	go func(logger telnet.Logger){
-
+	go func(logger telnet.Logger) {
 		var buffer [1]byte // Seems like the length of the buffer needs to be small, otherwise will have to wait for buffer to fill up.
 		p := buffer[:]
 
@@ -289,9 +260,9 @@ func connect(ctx telnet.Context, writer io.Writer, reader io.Reader) {
 			}
 
 			//logger.Tracef("Sending: %q.", p)
-//@TODO: Should we be checking for errors?
+			//@TODO: Should we be checking for errors?
 			oi.LongWrite(writer, p)
-			//logger.Tracef("Sent: %q.", p)
+			// logger.Tracef("Sent: %q.", p)
 		}
 	}(logger)
 }

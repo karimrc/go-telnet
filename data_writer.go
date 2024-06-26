@@ -1,20 +1,19 @@
 package telnet
 
-
 import (
-	"github.com/reiver/go-oi"
-
 	"bytes"
 	"errors"
 	"io"
-)
 
+	"github.com/reiver/go-oi"
+)
 
 var iaciac []byte = []byte{255, 255}
 
-var errOverflow = errors.New("Overflow")
-var errPartialIACIACWrite = errors.New("Partial IAC IAC write.")
-
+var (
+	errOverflow           = errors.New("Overflow")
+	errPartialIACIACWrite = errors.New("Partial IAC IAC write.")
+)
 
 // An internalDataWriter deals with "escaping" according to the TELNET (and TELNETS) protocol.
 //
@@ -24,7 +23,7 @@ var errPartialIACIACWrite = errors.New("Partial IAC IAC write.")
 //
 // The TELNET (and TELNETS) protocol also has a distinction between 'data' and 'commands'.
 //
-//(DataWriter is targetted toward TELNET (and TELNETS) 'data', not TELNET (and TELNETS) 'commands'.)
+// (DataWriter is targetted toward TELNET (and TELNETS) 'data', not TELNET (and TELNETS) 'commands'.)
 //
 // If a byte with value 255 (=IAC) appears in the data, then it must be escaped.
 //
@@ -49,7 +48,6 @@ type internalDataWriter struct {
 	wrapped io.Writer
 }
 
-
 // newDataWriter creates a new internalDataWriter writing to 'w'.
 //
 // 'w' receives what is written to the *internalDataWriter but escaped according to
@@ -70,12 +68,11 @@ type internalDataWriter struct {
 // *internalDataWriter takes care of all this for you, so you do not have to do it.
 func newDataWriter(w io.Writer) *internalDataWriter {
 	writer := internalDataWriter{
-		wrapped:w,
+		wrapped: w,
 	}
 
 	return &writer
 }
-
 
 // Write writes the TELNET (and TELNETS) escaped data for of the data in 'data' to the wrapped io.Writer.
 func (w *internalDataWriter) Write(data []byte) (n int, err error) {
@@ -90,9 +87,7 @@ func (w *internalDataWriter) Write(data []byte) (n int, err error) {
 	return n, err
 }
 
-
 func (w *internalDataWriter) write64(data []byte) (n int64, err error) {
-
 	if len(data) <= 0 {
 		return 0, nil
 	}
@@ -101,7 +96,6 @@ func (w *internalDataWriter) write64(data []byte) (n int64, err error) {
 
 	var buffer bytes.Buffer
 	for _, datum := range data {
-
 		if IAC == datum {
 
 			if buffer.Len() > 0 {
@@ -114,7 +108,6 @@ func (w *internalDataWriter) write64(data []byte) (n int64, err error) {
 				}
 				buffer.Reset()
 			}
-
 
 			var numWritten int64
 			//@TODO: Should we worry about "iaciac" potentially being modified by the .Write()?

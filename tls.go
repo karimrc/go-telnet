@@ -20,7 +20,7 @@ import (
 //	package main
 //	
 //	import (
-//		"github.com/reiver/go-telnet"
+//		"github.com/karimrc/go-telnet"
 //	)
 //	
 //	func main() {

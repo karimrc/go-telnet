@@ -2,19 +2,15 @@
 
 Package **telnet** provides TELNET and TELNETS client and server implementations, for the Go programming language.
 
-
 The **telnet** package provides an API in a style similar to the "net/http" library that is part of the Go standard library, including support for "middleware".
 
-
-(TELNETS is *secure TELNET*, with the TELNET protocol over a secured TLS (or SSL) connection.)
-
+(TELNETS is _secure TELNET_, with the TELNET protocol over a secured TLS (or SSL) connection.)
 
 ## Documention
 
-Online documentation, which includes examples, can be found at: http://godoc.org/github.com/reiver/go-telnet
+Online documentation, which includes examples, can be found at: http://godoc.org/github.com/karimrc/go-telnet
 
-[![GoDoc](https://godoc.org/github.com/reiver/go-telnet?status.svg)](https://godoc.org/github.com/reiver/go-telnet)
-
+[![GoDoc](https://godoc.org/github.com/karimrc/go-telnet?status.svg)](https://godoc.org/github.com/karimrc/go-telnet)
 
 ## Very Simple TELNET Server Example
 
@@ -22,20 +18,20 @@ A very very simple TELNET server is shown in the following code.
 
 This particular TELNET server just echos back to the user anything they "submit" to the server.
 
-(By default, a TELNET client does *not* send anything to the server until the [Enter] key is pressed.
+(By default, a TELNET client does _not_ send anything to the server until the [Enter] key is pressed.
 "Submit" means typing something and then pressing the [Enter] key.)
 
 ```
 package main
 
 import (
-	"github.com/reiver/go-telnet"
+	"github.com/karimrc/go-telnet"
 )
 
 func main() {
 
 	var handler telnet.Handler = telnet.EchoHandler
-	
+
 	err := telnet.ListenAndServe(":5555", handler)
 	if nil != err {
 		//@TODO: Handle this error better.
@@ -47,18 +43,19 @@ func main() {
 
 If you wanted to test out this very very simple TELNET server, if you were on the same computer it was
 running, you could connect to it using the bash command:
+
 ```
 telnet localhost 5555
 ```
+
 (Note that we use the same TCP port number -- "5555" -- as we had in our code. That is important, as the
 value used by your TELNET server and the value used by your TELNET client **must** match.)
-
 
 ## Very Simple (Secure) TELNETS Server Example
 
 TELNETS is the secure version of TELNET.
 
-The code to make a TELNETS server is very similar to the code to make a TELNET server. 
+The code to make a TELNETS server is very similar to the code to make a TELNET server.
 (The difference between we use the `telnet.ListenAndServeTLS` func instead of the
 `telnet.ListenAndServe` func.)
 
@@ -66,13 +63,13 @@ The code to make a TELNETS server is very similar to the code to make a TELNET s
 package main
 
 import (
-	"github.com/reiver/go-telnet"
+	"github.com/karimrc/go-telnet"
 )
 
 func main() {
 
 	var handler telnet.Handler = telnet.EchoHandler
-	
+
 	err := telnet.ListenAndServeTLS(":5555", "cert.pem", "key.pem", handler)
 	if nil != err {
 		//@TODO: Handle this error better.
@@ -83,15 +80,15 @@ func main() {
 ```
 
 If you wanted to test out this very very simple TELNETS server, get the `telnets` client program from here:
-https://github.com/reiver/telnets
-
+https://github.com/karimrc/telnets
 
 ## TELNET Client Example:
+
 ```
 package main
 
 import (
-	"github.com/reiver/go-telnet"
+	"github.com/karimrc/go-telnet"
 )
 
 func main() {
@@ -102,13 +99,13 @@ func main() {
 }
 ```
 
-
 ## TELNETS Client Example:
+
 ```
 package main
 
 import (
-	"github.com/reiver/go-telnet"
+	"github.com/karimrc/go-telnet"
 
 	"crypto/tls"
 )
@@ -124,20 +121,20 @@ func main() {
 }
 ```
 
+## TELNET Shell Server Example
 
-##  TELNET Shell Server Example
-
-A more useful TELNET servers can be made using the `"github.com/reiver/go-telnet/telsh"` sub-package.
+A more useful TELNET servers can be made using the `"github.com/karimrc/go-telnet/telsh"` sub-package.
 
 For example:
+
 ```
 package main
 
 
 import (
 	"github.com/reiver/go-oi"
-	"github.com/reiver/go-telnet"
-	"github.com/reiver/go-telnet/telsh"
+	"github.com/karimrc/go-telnet"
+	"github.com/karimrc/go-telnet/telsh"
 
 	"io"
 	"time"
@@ -205,11 +202,11 @@ func main() {
 	shellHandler := telsh.NewShellHandler()
 
 	shellHandler.WelcomeMessage = `
- __          __ ______  _        _____   ____   __  __  ______ 
+ __          __ ______  _        _____   ____   __  __  ______
  \ \        / /|  ____|| |      / ____| / __ \ |  \/  ||  ____|
-  \ \  /\  / / | |__   | |     | |     | |  | || \  / || |__   
-   \ \/  \/ /  |  __|  | |     | |     | |  | || |\/| ||  __|  
-    \  /\  /   | |____ | |____ | |____ | |__| || |  | || |____ 
+  \ \  /\  / / | |__   | |     | |     | |  | || \  / || |__
+   \ \/  \/ /  |  __|  | |     | |     | |  | || |\/| ||  __|
+    \  /\  /   | |____ | |____ | |____ | |__| || |  | || |____
      \/  \/    |______||______| \_____| \____/ |_|  |_||______|
 
 `
@@ -240,13 +237,11 @@ func main() {
 }
 ```
 
-TELNET servers made using the `"github.com/reiver/go-telnet/telsh"` sub-package will often be more useful
-as it makes it easier for you to create a *shell* interface.
-
+TELNET servers made using the `"github.com/karimrc/go-telnet/telsh"` sub-package will often be more useful
+as it makes it easier for you to create a _shell_ interface.
 
 # More Information
 
-There is a lot more information about documentation on all this here: http://godoc.org/github.com/reiver/go-telnet
+There is a lot more information about documentation on all this here: http://godoc.org/github.com/karimrc/go-telnet
 
 (You should really read those.)
-

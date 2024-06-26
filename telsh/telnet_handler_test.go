@@ -2,7 +2,7 @@ package telsh
 
 
 import (
-	"github.com/reiver/go-telnet"
+	"github.com/karimrc/go-telnet"
 
 	"bytes"
 	"strings"
